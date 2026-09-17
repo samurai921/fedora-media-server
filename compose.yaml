@@ -72,7 +72,6 @@ services:
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
-    profiles: [flaresolverr]
     environment:
       TZ: ${TZ:-Europe/Berlin}
       LOG_LEVEL: info

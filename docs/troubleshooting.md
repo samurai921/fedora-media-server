@@ -8,7 +8,7 @@ docker compose ps
 docker compose logs --tail=100 <service>
 ```
 
-Замените `<service>` на `qbittorrent`, `radarr`, `sonarr`, `prowlarr`, `jellyfin` или `jellyseerr`. Для FlareSolverr добавьте `--profile flaresolverr` к командам Compose. Если порт занят, найдите конфликтующий процесс и освободите порт либо осознанно измените проброс.
+Замените `<service>` на `qbittorrent`, `radarr`, `sonarr`, `prowlarr`, `jellyfin`, `jellyseerr` или `flaresolverr`. Если порт занят, найдите конфликтующий процесс и освободите порт либо осознанно измените проброс.
 
 ## Нет доступа к файлам
 

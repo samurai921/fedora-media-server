@@ -1,6 +1,6 @@
 # Домашний медиасервер на Fedora 44
 
-Документированный стек Docker Compose: Jellyseerr принимает запросы, Radarr и Sonarr управляют фильмами и сериалами, Prowlarr подключает разрешённые источники, qBittorrent загружает файлы, Jellyfin показывает библиотеку. FlareSolverr включается отдельным профилем при необходимости; инструкции по обходу ограничений сайтов здесь отсутствуют. Используйте только контент и источники, к которым у вас есть право доступа.
+Документированный стек Docker Compose: Jellyseerr принимает запросы, Radarr и Sonarr управляют фильмами и сериалами, Prowlarr подключает разрешённые источники, qBittorrent загружает файлы, Jellyfin показывает библиотеку. FlareSolverr работает как внутренний сервис Prowlarr; для RuTracker.org настройка выполняется через интерфейс Prowlarr. Используйте только контент и источники, к которым у вас есть право доступа.
 
 ## Быстрый запуск
 
@@ -47,6 +47,8 @@ fedora-media-server/
     ├── 06-jellyseerr.md
     ├── 07-jellyfin.md
     ├── 08-russian-audio.md
+    ├── 09-rutracker-flaresolverr.md
+    ├── service-flow.svg
     └── troubleshooting.md
 ```
 
@@ -54,27 +56,9 @@ fedora-media-server/
 
 ## Схема взаимодействия
 
-```mermaid
-flowchart LR
-    U[Пользователь] -->|запрос фильма или сериала| JS[Jellyseerr]
-    JS -->|запрос фильма| R[Radarr]
-    JS -->|запрос сериала| S[Sonarr]
-    JS <-->|наличие в библиотеке| J[Jellyfin]
-    P[Prowlarr] -->|разрешённые индексаторы| R
-    P -->|разрешённые индексаторы| S
-    R -->|задача загрузки| Q[qBittorrent]
-    S -->|задача загрузки| Q
-    Q -->|сохраняет| T[(data/torrents)]
-    T -->|импорт фильма| R
-    T -->|импорт сериала| S
-    R -->|помещает фильм| M[(data/media)]
-    S -->|помещает сериал| M
-    M -->|читает| J
-    TV[ТВ в домашней сети] -->|LAN-IP:8096| J
-    P -.->|необязательный proxy| F[FlareSolverr]
-```
+![Путь запроса от Jellyseerr до просмотра на ТВ](docs/service-flow.svg)
 
-Prowlarr передаёт настройки разрешённых источников Radarr/Sonarr. qBittorrent сохраняет загрузки, Radarr/Sonarr импортируют их в библиотеку, Jellyfin читает готовые файлы. FlareSolverr выключен по умолчанию.
+Основной путь: запрос в Jellyseerr → поиск через Radarr/Sonarr → загрузка qBittorrent → импорт в `/data/media` → просмотр в Jellyfin. Prowlarr передаёт Radarr/Sonarr настройки источников. FlareSolverr подключается к Prowlarr для выбранного источника; подробности в [настройке RuTracker.org](docs/09-rutracker-flaresolverr.md). Jellyseerr также проверяет наличие контента в Jellyfin.
 
 ## Адреса
 
@@ -93,7 +77,7 @@ Prowlarr передаёт настройки разрешённых источн
 
 1. [qBittorrent](docs/02-qbittorrent.md): пароль, каталог `/data/torrents`, категории.
 2. [Radarr](docs/04-radarr.md) и [Sonarr](docs/05-sonarr.md): корневые каталоги, клиент загрузки.
-3. [Prowlarr](docs/03-prowlarr.md): разрешённые индексаторы и связь с Radarr/Sonarr.
+3. [Prowlarr](docs/03-prowlarr.md): источники и связь с Radarr/Sonarr; [RuTracker.org и FlareSolverr](docs/09-rutracker-flaresolverr.md).
 4. [Jellyfin](docs/07-jellyfin.md): библиотеки фильмов и сериалов.
 5. [Jellyseerr](docs/06-jellyseerr.md): связь с Jellyfin, Radarr и Sonarr.
 6. [Русская озвучка](docs/08-russian-audio.md): профили и ограничения определения языка.
@@ -121,7 +105,7 @@ docker compose up -d
 docker compose down
 ```
 
-`down` останавливает контейнеры; каталоги на хосте остаются. Обновляйте образы осознанно и сохраняйте резервную копию настроек перед обновлением. FlareSolverr по умолчанию не запускается: `docker compose --profile flaresolverr up -d`; внутри сети доступен по `http://flaresolverr:8191`. В Compose его порт на хост не опубликован.
+`down` останавливает контейнеры; каталоги на хосте остаются. Обновляйте образы осознанно и сохраняйте резервную копию настроек перед обновлением. FlareSolverr запускается вместе со стеком и доступен Prowlarr по `http://flaresolverr:8191`. Его порт на хост не опубликован.
 
 ## Источники
 
