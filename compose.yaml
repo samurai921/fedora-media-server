@@ -8,6 +8,8 @@ x-linuxserver-env: &linuxserver-env
 services:
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
+    mem_limit: ${QBITTORRENT_MEM_LIMIT:-512m}
+    mem_reservation: ${QBITTORRENT_MEM_RESERVATION:-128m}
     environment:
       <<: *linuxserver-env
       WEBUI_PORT: "8080"
@@ -23,6 +25,8 @@ services:
 
   radarr:
     image: lscr.io/linuxserver/radarr:latest
+    mem_limit: ${RADARR_MEM_LIMIT:-1g}
+    mem_reservation: ${RADARR_MEM_RESERVATION:-256m}
     environment: *linuxserver-env
     volumes:
       - ./config/radarr:/config:Z
@@ -33,6 +37,8 @@ services:
 
   sonarr:
     image: lscr.io/linuxserver/sonarr:latest
+    mem_limit: ${SONARR_MEM_LIMIT:-1g}
+    mem_reservation: ${SONARR_MEM_RESERVATION:-256m}
     environment: *linuxserver-env
     volumes:
       - ./config/sonarr:/config:Z
@@ -43,6 +49,8 @@ services:
 
   prowlarr:
     image: lscr.io/linuxserver/prowlarr:latest
+    mem_limit: ${PROWLARR_MEM_LIMIT:-512m}
+    mem_reservation: ${PROWLARR_MEM_RESERVATION:-128m}
     environment: *linuxserver-env
     volumes:
       - ./config/prowlarr:/config:Z
@@ -52,6 +60,8 @@ services:
 
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
+    mem_limit: ${JELLYFIN_MEM_LIMIT:-2g}
+    mem_reservation: ${JELLYFIN_MEM_RESERVATION:-512m}
     environment: *linuxserver-env
     volumes:
       - ./config/jellyfin:/config:Z
@@ -62,6 +72,8 @@ services:
 
   jellyseerr:
     image: fallenbagel/jellyseerr:latest
+    mem_limit: ${JELLYSEERR_MEM_LIMIT:-1g}
+    mem_reservation: ${JELLYSEERR_MEM_RESERVATION:-256m}
     environment:
       TZ: ${TZ:-Europe/Berlin}
     volumes:
@@ -72,6 +84,8 @@ services:
 
   flaresolverr:
     image: ghcr.io/flaresolverr/flaresolverr:latest
+    mem_limit: ${FLARESOLVERR_MEM_LIMIT:-2g}
+    mem_reservation: ${FLARESOLVERR_MEM_RESERVATION:-256m}
     environment:
       TZ: ${TZ:-Europe/Berlin}
       LOG_LEVEL: info

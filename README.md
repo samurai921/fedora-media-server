@@ -80,6 +80,8 @@ docker compose ps
 
 В списке должны быть `qbittorrent`, `radarr`, `sonarr`, `prowlarr`, `jellyfin`, `jellyseerr`, `flaresolverr`. Если Docker требует права администратора, используйте `sudo docker compose` для этих команд. Если сервис не запустился: `docker compose logs --tail=100 <имя-сервиса>`.
 
+Пределы памяти заданы отдельно для каждого контейнера через `.env.example`: от `512m` для qBittorrent/Prowlarr до `2g` для Jellyfin/FlareSolverr. `MEM_LIMIT` — жёсткий предел, `MEM_RESERVATION` — мягкий ориентир при нехватке памяти. При `OOMKilled` увеличьте предел нужного сервиса в `.env`. [Как Docker применяет ограничения памяти](https://docs.docker.com/engine/containers/resource_constraints/#memory).
+
 ### 4. Настройте qBittorrent
 
 1. Откройте `http://localhost:8080`.
