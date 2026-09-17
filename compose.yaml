@@ -1,0 +1,79 @@
+name: fedora-media-server
+
+x-linuxserver-env: &linuxserver-env
+  PUID: ${PUID:-1000}
+  PGID: ${PGID:-1000}
+  TZ: ${TZ:-Europe/Berlin}
+
+services:
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    environment:
+      <<: *linuxserver-env
+      WEBUI_PORT: "8080"
+      TORRENTING_PORT: "6881"
+    volumes:
+      - ./config/qbittorrent:/config:Z
+      - ./data:/data:z
+    ports:
+      - "8080:8080"
+      - "6881:6881/tcp"
+      - "6881:6881/udp"
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    environment: *linuxserver-env
+    volumes:
+      - ./config/radarr:/config:Z
+      - ./data:/data:z
+    ports:
+      - "7878:7878"
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    environment: *linuxserver-env
+    volumes:
+      - ./config/sonarr:/config:Z
+      - ./data:/data:z
+    ports:
+      - "8989:8989"
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    environment: *linuxserver-env
+    volumes:
+      - ./config/prowlarr:/config:Z
+    ports:
+      - "9696:9696"
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    environment: *linuxserver-env
+    volumes:
+      - ./config/jellyfin:/config:Z
+      - ./data/media:/data/media:ro,z
+    ports:
+      - "8096:8096"
+    restart: unless-stopped
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+    volumes:
+      - ./config/jellyseerr:/app/config:Z
+    ports:
+      - "5055:5055"
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    profiles: [flaresolverr]
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+      LOG_LEVEL: info
+    restart: unless-stopped
