@@ -1,0 +1,34 @@
+[Unit]
+Description=Xray Jellyfin Reverse Tunnel (VPS)
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/xray-jellyfin
+ExecStartPre=/opt/xray-jellyfin/xray run -test -config /opt/xray-jellyfin/config.json
+ExecStart=/opt/xray-jellyfin/xray run -config /opt/xray-jellyfin/config.json
+Restart=on-failure
+RestartSec=5s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+AmbientCapabilities=
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

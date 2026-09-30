@@ -1,0 +1,53 @@
+{
+  "log": { "loglevel": "warning" },
+  "routing": {
+    "rules": [
+      {
+        "type": "field",
+        "inboundTag": ["reverse-in"],
+        "outboundTag": "jellyfin-local"
+      }
+    ]
+  },
+  "outbounds": [
+    { "tag": "block-default", "protocol": "blackhole", "settings": {} },
+    {
+      "tag": "jellyfin-local",
+      "protocol": "freedom",
+      "settings": {
+        "redirect": "127.0.0.1:8096",
+        "finalRules": [
+          {
+            "action": "allow",
+            "network": "tcp",
+            "ip": "127.0.0.1",
+            "port": "8096"
+          }
+        ]
+      }
+    },
+    {
+      "tag": "reverse-to-vps",
+      "protocol": "vless",
+      "settings": {
+        "address": "<VPS_HOST>",
+        "port": 8443,
+        "id": "<VLESS_UUID>",
+        "encryption": "none",
+        "flow": "xtls-rprx-vision",
+        "reverse": { "tag": "reverse-in" }
+      },
+      "streamSettings": {
+        "network": "tcp",
+        "security": "reality",
+        "realitySettings": {
+          "show": false,
+          "serverName": "www.bing.com",
+          "fingerprint": "chrome",
+          "password": "<REALITY_PUBLIC_PASSWORD>",
+          "shortId": "<REALITY_SHORT_ID>"
+        }
+      }
+    }
+  ]
+}

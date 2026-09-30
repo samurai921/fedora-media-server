@@ -10,6 +10,10 @@ fedora-media-server/
 ├── compose.yaml
 ├── .env.example
 ├── .gitignore
+├── deploy/xray-jellyfin/
+│   ├── vps/config.example.json
+│   ├── fedora/config.example.json
+│   └── systemd/
 ├── config/
 │   ├── qbittorrent/
 │   ├── radarr/
@@ -34,11 +38,21 @@ fedora-media-server/
     ├── 07-jellyfin.md
     ├── 08-russian-audio.md
     ├── 09-rutracker-flaresolverr.md
+    ├── 10-xray-jellyfin.md
+    ├── 11-xray-operations.md
     ├── service-flow.svg
     └── troubleshooting.md
 ```
 
 Файл `.env` появится после шага 2. Папки `config/` и `data/` уже созданы; их содержимое и `.env` не попадают в Git.
+
+## Jellyfin через VPS и автозапуск
+
+Для отдельного Xray REALITY reverse tunnel добавлены [установка и безопасные шаблоны](docs/10-xray-jellyfin.md), [проверка, reboot и восстановление](docs/11-xray-operations.md) и [systemd unit-файлы](deploy/xray-jellyfin/systemd). Схема: Fedora сама подключается к VPS по TCP 8443; VPS `127.0.0.1:18096` передаёт запросы в Jellyfin на Fedora `127.0.0.1:8096`. Версия исходной настройки — Xray 26.2.6. Существующие Amnezia/OpenVPN/AWG2/x-ui обслуживаются отдельно.
+
+После обычного reboot всё должно запуститься без открытого терминала, если Docker и оба Xray-сервиса включены, Jellyfin не был остановлен вручную, сеть и диски доступны. `restart: unless-stopped` уже задан в Compose. При выключенном или спящем домашнем ПК Jellyfin недоступен. Пошаговая проверка этих условий — в инструкции по reboot.
+
+Все конфиги в `deploy/xray-jellyfin` — **шаблоны с маркерами**, их нельзя запускать без заполнения локальной копии вне Git. Реальные UUID, ключи, REALITY Password, shortId, токены, пароли и домашний IP в репозиторий не добавляются. Доступ через браузер пока описан через SSH; Caddy/HTTPS — отдельный следующий этап. Текущий Compose публикует `8096:8096` на всех интерфейсах Fedora: доступ по localhost сам по себе не делает порт закрытым для LAN/интернета. В новой инструкции описано ограничение этого доступа.
 
 ## Схема работы сервисов
 
