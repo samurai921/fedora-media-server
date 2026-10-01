@@ -8,6 +8,9 @@
 fedora-media-server/
 ├── README.md
 ├── compose.yaml
+├── compose.limits.yaml
+├── deploy/caddy/jellyfin.caddy
+├── scripts/check-jellyfin.sh
 ├── .env.example
 ├── .gitignore
 ├── deploy/xray-jellyfin/
@@ -40,6 +43,7 @@ fedora-media-server/
     ├── 09-rutracker-flaresolverr.md
     ├── 10-xray-jellyfin.md
     ├── 11-xray-operations.md
+    ├── 12-domain-and-nvidia.md
     ├── service-flow.svg
     └── troubleshooting.md
 ```
@@ -52,7 +56,7 @@ fedora-media-server/
 
 После обычного reboot всё должно запуститься без открытого терминала, если Docker и оба Xray-сервиса включены, Jellyfin не был остановлен вручную, сеть и диски доступны. `restart: unless-stopped` уже задан в Compose. При выключенном или спящем домашнем ПК Jellyfin недоступен. Пошаговая проверка этих условий — в инструкции по reboot.
 
-Все конфиги в `deploy/xray-jellyfin` — **шаблоны с маркерами**, их нельзя запускать без заполнения локальной копии вне Git. Реальные UUID, ключи, REALITY Password, shortId, токены, пароли и домашний IP в репозиторий не добавляются. Доступ через браузер пока описан через SSH; Caddy/HTTPS — отдельный следующий этап. Текущий Compose публикует `8096:8096` на всех интерфейсах Fedora: доступ по localhost сам по себе не делает порт закрытым для LAN/интернета. В новой инструкции описано ограничение этого доступа.
+Все конфиги в `deploy/xray-jellyfin` — **шаблоны с маркерами**, их нельзя запускать без заполнения локальной копии вне Git. Реальные UUID, ключи, REALITY Password, shortId, токены, пароли и домашний IP в репозиторий не добавляются. Публичный адрес установки — **https://jellyfin.mediadima.ru**. HTTPS завершается на Caddy на VPS, backend — `127.0.0.1:18096`. [Домен, NVIDIA и проверка работы](docs/12-domain-and-nvidia.md); [фрагмент Caddy](deploy/caddy/jellyfin.caddy). Домен опубликован по запросу владельца; секретов в этом фрагменте нет. Текущий Compose публикует `8096:8096` на всех интерфейсах Fedora: доступ по localhost сам по себе не делает порт закрытым для LAN/интернета. В новой инструкции описано ограничение этого доступа.
 
 ## Схема работы сервисов
 
@@ -86,6 +90,8 @@ id -g
 
 ### 3. Запустите сервисы
 
+Эта конфигурация сохраняет действующую установку `/home/dimasarychev/media-server`: имя Compose-проекта `media-server`, фиксированные имена контейнеров и образ Seerr `ghcr.io/seerr-team/seerr:latest`. Перед запуском в другом каталоге проверьте отсутствие конфликтующих контейнеров. Jellyfin требует NVIDIA Container Toolkit и доступную NVIDIA GPU; настройка для RTX 3060 Ti описана [отдельно](docs/12-domain-and-nvidia.md).
+
 ```bash
 docker compose config -q
 docker compose up -d
@@ -94,7 +100,7 @@ docker compose ps
 
 В списке должны быть `qbittorrent`, `radarr`, `sonarr`, `prowlarr`, `jellyfin`, `jellyseerr`, `flaresolverr`. Если Docker требует права администратора, используйте `sudo docker compose` для этих команд. Если сервис не запустился: `docker compose logs --tail=100 <имя-сервиса>`.
 
-Пределы памяти заданы отдельно для каждого контейнера через `.env.example`: от `512m` для qBittorrent/Prowlarr до `2g` для Jellyfin/FlareSolverr. `MEM_LIMIT` — жёсткий предел, `MEM_RESERVATION` — мягкий ориентир при нехватке памяти. При `OOMKilled` увеличьте предел нужного сервиса в `.env`. [Как Docker применяет ограничения памяти](https://docs.docker.com/engine/containers/resource_constraints/#memory).
+Основной Compose сохраняет действующую установку без лимитов памяти. Лимиты из предыдущей версии вынесены в **необязательный** `compose.limits.yaml`; чтобы применить их, явно укажите `docker compose -f compose.yaml -f compose.limits.yaml up -d`. Это пересоздаёт затронутые контейнеры, поэтому сначала оцените нагрузку. Значения задаются через `.env.example`: от `512m` для qBittorrent/Prowlarr до `2g` для Jellyfin/FlareSolverr. `MEM_LIMIT` — жёсткий предел, `MEM_RESERVATION` — мягкий ориентир при нехватке памяти. При `OOMKilled` увеличьте предел нужного сервиса в `.env`. [Как Docker применяет ограничения памяти](https://docs.docker.com/engine/containers/resource_constraints/#memory).
 
 ### 4. Настройте qBittorrent
 
@@ -125,6 +131,8 @@ docker compose ps
 FlareSolverr работает внутри сети Docker; порт `8191` на хосте не открыт. Prowlarr использует его для индексатора с совпадающим тегом, когда распознаёт Cloudflare. Данные учётной записи, cookies и API-ключи не записывайте в репозиторий. Подробнее: [Prowlarr](docs/03-prowlarr.md), [RuTracker.org и FlareSolverr](docs/09-rutracker-flaresolverr.md).
 
 ### 7. Настройте Jellyfin
+
+Для просмотра через интернет используйте **https://jellyfin.mediadima.ru**. Проброс GPU в Compose не включает NVENC в приложении: выберите его в настройках транскодирования. [Инструкция и проверка](docs/12-domain-and-nvidia.md).
 
 Откройте `http://localhost:8096`. В мастере добавьте две библиотеки: **Фильмы** → `/data/media/movies`, **Сериалы** → `/data/media/tv`. Подробнее: [Jellyfin](docs/07-jellyfin.md).
 

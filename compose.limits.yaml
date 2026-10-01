@@ -1,0 +1,30 @@
+# Не применяется автоматически. Включайте после оценки нагрузки:
+# docker compose -f compose.yaml -f compose.limits.yaml up -d
+services:
+  qbittorrent:
+    mem_limit: ${QBITTORRENT_MEM_LIMIT:-512m}
+    mem_reservation: ${QBITTORRENT_MEM_RESERVATION:-128m}
+  radarr:
+    mem_limit: ${RADARR_MEM_LIMIT:-1g}
+    mem_reservation: ${RADARR_MEM_RESERVATION:-256m}
+  sonarr:
+    mem_limit: ${SONARR_MEM_LIMIT:-1g}
+    mem_reservation: ${SONARR_MEM_RESERVATION:-256m}
+  prowlarr:
+    mem_limit: ${PROWLARR_MEM_LIMIT:-512m}
+    mem_reservation: ${PROWLARR_MEM_RESERVATION:-128m}
+  jellyfin:
+    deploy:
+      resources:
+        reservations:
+          memory: ${JELLYFIN_MEM_RESERVATION:-512m}
+        limits:
+          memory: ${JELLYFIN_MEM_LIMIT:-2g}
+    mem_limit: ${JELLYFIN_MEM_LIMIT:-2g}
+    mem_reservation: ${JELLYFIN_MEM_RESERVATION:-512m}
+  jellyseerr:
+    mem_limit: ${JELLYSEERR_MEM_LIMIT:-1g}
+    mem_reservation: ${JELLYSEERR_MEM_RESERVATION:-256m}
+  flaresolverr:
+    mem_limit: ${FLARESOLVERR_MEM_LIMIT:-2g}
+    mem_reservation: ${FLARESOLVERR_MEM_RESERVATION:-256m}
