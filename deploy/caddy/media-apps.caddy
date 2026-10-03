@@ -1,0 +1,18 @@
+# VPS only. Enable after DNS, both tunnel candidates and app login checks.
+# Import this file once in the existing Caddyfile; keep the Jellyfin site.
+# Each upstream is a loopback-only inbound of the dedicated media Xray.
+radarr.mediadima.ru {
+	reverse_proxy 127.0.0.1:17878
+}
+
+sonarr.mediadima.ru {
+	reverse_proxy 127.0.0.1:18989
+}
+
+prowlarr.mediadima.ru {
+	reverse_proxy 127.0.0.1:19696
+}
+
+requests.mediadima.ru {
+	reverse_proxy 127.0.0.1:15055
+}

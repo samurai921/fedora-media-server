@@ -74,20 +74,12 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/Berlin}
-      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
       - JELLYFIN_PublishedServerUrl=${JELLYFIN_PUBLIC_URL:-https://jellyfin.mediadima.ru}
     volumes:
       - ./config/jellyfin:/config:Z
       - ./data/media:/data/media:z
     ports:
       - "8096:8096"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
     restart: unless-stopped
 
   jellyseerr:

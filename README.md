@@ -44,6 +44,7 @@ fedora-media-server/
     ├── 10-xray-jellyfin.md
     ├── 11-xray-operations.md
     ├── 12-domain-and-nvidia.md
+    ├── 13-service-domains.md
     ├── service-flow.svg
     └── troubleshooting.md
 ```
@@ -149,3 +150,16 @@ FlareSolverr работает внутри сети Docker; порт `8191` на
 Внутри Docker сервисы обращаются друг к другу по именам `qbittorrent`, `radarr`, `sonarr`, `prowlarr`, `jellyfin`, `jellyseerr`, `flaresolverr`. В браузере Fedora используйте `localhost` и порт из соответствующего шага. На ТВ используйте LAN-IP Fedora-хоста. [Русская озвучка и Custom Formats](docs/08-russian-audio.md) настраиваются после проверки основного пути.
 
 Для остановки: `docker compose down`. Настройки и медиаданные в `config/` и `data/` остаются на диске. Перед обновлением образов сохраните резервную копию этих каталогов.
+
+## Домены остальных сервисов
+
+Для Radarr, Sonarr, Prowlarr и Jellyseerr подготовлен доступ через тот же VPS:
+
+| Сервис | Адрес после включения |
+| --- | --- |
+| Radarr | https://radarr.mediadima.ru |
+| Sonarr | https://sonarr.mediadima.ru |
+| Prowlarr | https://prowlarr.mediadima.ru |
+| Jellyseerr / Seerr | https://requests.mediadima.ru |
+
+**Пока не включено:** нужны четыре DNS-записи и применение конфигурации на VPS/Fedora с административным доступом. [Порядок включения, проверки и откат](docs/13-service-domains.md). Существующий Jellyfin продолжает работать. Новые панели требуют входа; рабочие ключи и пароли в Git не добавляются.

@@ -39,3 +39,7 @@ client-info.txt
 !*.env.example
 config.json.*
 /deploy/xray-jellyfin/**/xray
+
+# Python diagnostic scripts
+__pycache__/
+*.py[cod]
