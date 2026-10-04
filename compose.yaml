@@ -70,6 +70,8 @@ services:
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
+    # Reserve physical core 0 (logical CPUs 0 and 8) for other host workloads.
+    cpuset: "1-7,9-15"
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
