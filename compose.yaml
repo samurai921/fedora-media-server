@@ -73,6 +73,7 @@ services:
     # Reserve physical core 0 (logical CPUs 0 and 8) for other host workloads.
     cpuset: "1-7,9-15"
     environment:
+      - NVIDIA_DRIVER_CAPABILITIES=compute,video,utility
       - PUID=${PUID:-1000}
       - PGID=${PGID:-1000}
       - TZ=${TZ:-Europe/Berlin}
@@ -82,6 +83,13 @@ services:
       - ./data/media:/data/media:z
     ports:
       - "8096:8096"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     restart: unless-stopped
 
   jellyseerr:
